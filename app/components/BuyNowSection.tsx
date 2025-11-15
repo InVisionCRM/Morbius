@@ -15,7 +15,7 @@ export default function BuyNowSection() {
         <div className="rounded-2xl overflow-hidden border border-gray-700 shadow-2xl shadow-purple-500/10">
           <iframe
             src="https://switch.win/widget?chain=pulsechain&darkMode=true&tokenIn=0xA1077a294dDE1B09bB078844df40758a5D0f9a27&tokenOut=0xB7d4eB5fDfE3d4d3B5C16a44A49948c6EC77c6F1"
-            className="w-full h-[600px]"
+            className="w-full h-[625px]"
             style={{ border: 'none' }}
             title="Buy MORBIUS on PulseChain"
           />

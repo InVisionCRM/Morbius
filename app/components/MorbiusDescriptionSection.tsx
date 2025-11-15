@@ -13,10 +13,9 @@ export default function MorbiusDescriptionSection() {
         const elementCenter = rect.top + rect.height / 2;
         const viewportHeight = window.innerHeight;
 
-        // Define key positions for fade in/out
+        // Define key positions for fade in only
         const fadeInStart = viewportHeight * 0.7; // 30% from bottom
         const fullVisible = viewportHeight * 0.5; // Center (50%)
-        const fadeOutEnd = viewportHeight * 0.3; // 30% from top
 
         let calculatedOpacity = 0;
 
@@ -25,18 +24,20 @@ export default function MorbiusDescriptionSection() {
           const range = fadeInStart - fullVisible;
           const position = fadeInStart - elementCenter;
           calculatedOpacity = position / range;
-        } else if (elementCenter >= fadeOutEnd && elementCenter < fullVisible) {
-          // Fading out from center to 30% top
-          const range = fullVisible - fadeOutEnd;
-          const position = elementCenter - fadeOutEnd;
-          calculatedOpacity = position / range;
-        } else if (elementCenter > fadeInStart || elementCenter < fadeOutEnd) {
-          calculatedOpacity = 0;
-        } else {
+        } else if (elementCenter < fullVisible) {
+          // Once past center, stay at full opacity (no fade out)
           calculatedOpacity = 1;
+        } else {
+          // Before fade-in starts
+          calculatedOpacity = 0;
         }
 
-        setOpacity(Math.max(0, Math.min(1, calculatedOpacity)));
+        // Only fade in - once it reaches 1, it stays at 1
+        setOpacity((prevOpacity) => {
+          const newOpacity = Math.max(0, Math.min(1, calculatedOpacity));
+          // Never decrease opacity (no fade out)
+          return Math.max(prevOpacity, newOpacity);
+        });
       }
     };
 
@@ -57,7 +58,7 @@ export default function MorbiusDescriptionSection() {
       {/* Background Image with 40% opacity */}
       <div className="absolute inset-0">
         <img
-          src="/Web ui/fc450e14-bb4c-4b5f-b2bc-f8bae3251224.png.jpeg"
+          src="/Web ui/mobius.jpeg"
           alt="Morbius Background"
           className="w-full h-full object-cover opacity-40"
         />
@@ -65,13 +66,17 @@ export default function MorbiusDescriptionSection() {
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Centered Text with Fade In/Out Parallax Effect */}
+      {/* Centered Text with Fade In Parallax Effect */}
       <div 
         className="relative z-10 max-w-4xl mx-auto px-6 text-center"
         style={{ opacity }}
       >
         <p className="text-2xl md:text-3xl font-light text-white leading-relaxed">
-          Morbius was a Marvel Character who was a scientist with a rare blood disease and would accidentally transform into a "living vampire" with superhuman strength, flight, and a craving for blood...
+          Morbius was a Marvel Character who was a scientist with a rare blood disease and would accidentally transform into a "living vampire" with superhuman strength, flight, and a craving for{" "}
+          <span className="text-[#8B0000] font-semibold">
+            blood
+          </span>
+          ...
         </p>
       </div>
     </section>
