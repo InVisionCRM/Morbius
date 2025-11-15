@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 export default function MorbiusDescriptionSection() {
   const [opacity, setOpacity] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,17 +51,99 @@ export default function MorbiusDescriptionSection() {
     };
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animationFrameId: number | null = null;
+    let startTime: number;
+    let videoDuration: number;
+
+    const handleLoadedMetadata = () => {
+      videoDuration = video.duration;
+      // Start from the end
+      video.currentTime = videoDuration;
+      
+      // Try negative playback rate first (supported in some browsers)
+      try {
+        video.playbackRate = -1;
+        video.play().catch(() => {
+          // Fallback to manual reverse playback
+          startManualReverse();
+        });
+      } catch {
+        // Fallback to manual reverse playback
+        startManualReverse();
+      }
+    };
+
+    const startManualReverse = () => {
+      video.currentTime = videoDuration;
+      startTime = Date.now();
+      let lastUpdateTime = 0;
+      const updateThreshold = 33; // Update every ~33ms (30fps) to reduce seeking overhead
+      
+      const updateReverse = (timestamp: number) => {
+        if (timestamp - lastUpdateTime < updateThreshold) {
+          animationFrameId = requestAnimationFrame(updateReverse);
+          return;
+        }
+        lastUpdateTime = timestamp;
+        
+        const elapsed = (Date.now() - startTime) / 1000; // Convert to seconds
+        const newTime = Math.max(0, videoDuration - elapsed);
+        
+        if (newTime <= 0) {
+          video.currentTime = 0;
+          video.pause();
+          animationFrameId = null;
+          return;
+        }
+        
+        // Only update if there's a meaningful change to reduce seeking
+        if (Math.abs(video.currentTime - newTime) > 0.05) {
+          video.currentTime = newTime;
+        }
+        
+        animationFrameId = requestAnimationFrame(updateReverse);
+      };
+      
+      video.play().then(() => {
+        animationFrameId = requestAnimationFrame(updateReverse);
+      }).catch((error) => {
+        console.error("Error playing video:", error);
+      });
+    };
+
+    if (video.readyState >= 2) {
+      // Metadata already loaded
+      handleLoadedMetadata();
+    } else {
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    }
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []);
+
   return (
     <section 
       ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background Image with 40% opacity */}
+      {/* Background Video with 40% opacity */}
       <div className="absolute inset-0">
-        <img
-          src="/Web ui/mobius.jpeg"
-          alt="Morbius Background"
+        <video
+          ref={videoRef}
+          src="/Web ui/morbius.mp4"
           className="w-full h-full object-cover opacity-40"
+          autoPlay
+          muted
+          playsInline
         />
         {/* Black/20 overlay */}
         <div className="absolute inset-0 bg-black/20" />

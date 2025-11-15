@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 export default function ProveXMysterySection() {
   const [opacity, setOpacity] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,6 +50,77 @@ export default function ProveXMysterySection() {
     };
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animationFrameId: number | null = null;
+    let startTime: number;
+    let videoDuration: number;
+
+    const handleLoadedMetadata = () => {
+      videoDuration = video.duration;
+      // Always use manual reverse playback for reliability
+      startManualReverse();
+    };
+
+    const startManualReverse = () => {
+      // Start from the end
+      video.currentTime = videoDuration;
+      startTime = Date.now();
+      let lastUpdateTime = 0;
+      const updateThreshold = 33; // Update every ~33ms (30fps) to reduce seeking overhead
+      
+      const updateReverse = (timestamp: number) => {
+        if (timestamp - lastUpdateTime < updateThreshold) {
+          animationFrameId = requestAnimationFrame(updateReverse);
+          return;
+        }
+        lastUpdateTime = timestamp;
+        
+        const elapsed = (Date.now() - startTime) / 1000; // Convert to seconds
+        const newTime = Math.max(0, videoDuration - elapsed);
+        
+        if (newTime <= 0) {
+          video.currentTime = 0;
+          video.pause();
+          animationFrameId = null;
+          return;
+        }
+        
+        // Update currentTime to play in reverse
+        video.currentTime = newTime;
+        
+        animationFrameId = requestAnimationFrame(updateReverse);
+      };
+      
+      // Start playing (even though we'll control the time manually)
+      video.play().then(() => {
+        // Immediately pause and control playback manually
+        video.pause();
+        animationFrameId = requestAnimationFrame(updateReverse);
+      }).catch((error) => {
+        console.error("Error playing video:", error);
+        // Still try to start reverse playback even if play() fails
+        animationFrameId = requestAnimationFrame(updateReverse);
+      });
+    };
+
+    if (video.readyState >= 2) {
+      // Metadata already loaded
+      handleLoadedMetadata();
+    } else {
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    }
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []);
+
   // Helper function to render text with "Blood" in red if it's the last word
   const renderTextWithBloodRed = (text: string) => {
     const words = text.split(/(\s+)/);
@@ -73,12 +145,15 @@ export default function ProveXMysterySection() {
       ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background Image with 40% opacity */}
+      {/* Background Video with 40% opacity */}
       <div className="absolute inset-0">
-        <img
-          src="/Web ui/89a1cd4f-f22d-42d0-bbc3-d66753a265b6.png"
-          alt="ProveX Mystery Background"
+        <video
+          ref={videoRef}
+          src="/Web ui/mysterybackground.mp4"
           className="w-full h-full object-cover opacity-40"
+          autoPlay
+          muted
+          playsInline
         />
         {/* Black/20 overlay */}
         <div className="absolute inset-0 bg-black/20" />

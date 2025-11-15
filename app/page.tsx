@@ -97,6 +97,7 @@ export default function HomePage() {
   const { progress, containerRef } = useViewportCenterProgress();
   const letters = "MORBIUS".split("");
   const [scrollY, setScrollY] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -105,6 +106,85 @@ export default function HomePage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animationFrameId: number | null = null;
+    let startTime: number;
+    let videoDuration: number;
+
+    const handleLoadedMetadata = () => {
+      videoDuration = video.duration;
+      // Start from the end
+      video.currentTime = videoDuration;
+      
+      // Try negative playback rate first (supported in some browsers)
+      try {
+        video.playbackRate = -1;
+        video.play().catch(() => {
+          // Fallback to manual reverse playback
+          startManualReverse();
+        });
+      } catch {
+        // Fallback to manual reverse playback
+        startManualReverse();
+      }
+    };
+
+    const startManualReverse = () => {
+      video.currentTime = videoDuration;
+      startTime = Date.now();
+      let lastUpdateTime = 0;
+      const updateThreshold = 33; // Update every ~33ms (30fps) to reduce seeking overhead
+      
+      const updateReverse = (timestamp: number) => {
+        if (timestamp - lastUpdateTime < updateThreshold) {
+          animationFrameId = requestAnimationFrame(updateReverse);
+          return;
+        }
+        lastUpdateTime = timestamp;
+        
+        const elapsed = (Date.now() - startTime) / 1000; // Convert to seconds
+        const newTime = Math.max(0, videoDuration - elapsed);
+        
+        if (newTime <= 0) {
+          video.currentTime = 0;
+          video.pause();
+          animationFrameId = null;
+          return;
+        }
+        
+        // Only update if there's a meaningful change to reduce seeking
+        if (Math.abs(video.currentTime - newTime) > 0.05) {
+          video.currentTime = newTime;
+        }
+        
+        animationFrameId = requestAnimationFrame(updateReverse);
+      };
+      
+      video.play().then(() => {
+        animationFrameId = requestAnimationFrame(updateReverse);
+      }).catch((error) => {
+        console.error("Error playing video:", error);
+      });
+    };
+
+    if (video.readyState >= 2) {
+      // Metadata already loaded
+      handleLoadedMetadata();
+    } else {
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    }
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, []);
 
   return (
@@ -153,14 +233,14 @@ export default function HomePage() {
           
           {/* Center - Address and Copy button */}
           <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center w-full md:w-auto">
-            <code className="text-xs md:text-sm font-mono text-white truncate max-w-[200px] md:max-w-none">
-              0xB7d4eB5fDfE3d4d3B5C16a44A49948c6EC77c6F1
+            <code className="text-xs md:text-sm font-mono text-white inline-flex items-center m-0 p-0">
+              0xB7d4...c6F1
             </code>
             <button
               onClick={() => {
                 navigator.clipboard.writeText("0xB7d4eB5fDfE3d4d3B5C16a44A49948c6EC77c6F1");
               }}
-              className="px-2.5 md:px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1.5 md:gap-2 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
+              className="p-1.5 transition-opacity hover:opacity-80 inline-flex items-center justify-center gap-1.5 md:gap-2"
               aria-label="Copy address"
             >
               <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,12 +277,15 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Overlay */}
+        {/* Background Video with Overlay */}
         <div className="absolute inset-0">
-          <img
-            src="/Web ui/70a5bfc0-580d-4fe1-ad73-94e1efc04fd1.png"
-            alt="Morbius Background"
+          <video
+            ref={videoRef}
+            src="/Web ui/hero-vid.mp4"
             className="w-full h-full object-cover"
+            autoPlay
+            muted
+            playsInline
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>
