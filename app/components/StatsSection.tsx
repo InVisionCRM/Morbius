@@ -15,11 +15,11 @@ export default function StatsSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6">
-        <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8">
+      <div className="relative z-10 text-center px-4 md:px-6">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 md:mb-8">
           Stats
         </h2>
-        <p className="text-2xl md:text-3xl text-gray-300 font-light">
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light">
           Under construction
         </p>
       </div>

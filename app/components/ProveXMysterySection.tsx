@@ -86,10 +86,10 @@ export default function ProveXMysterySection() {
 
       {/* Centered Text with Fade In/Out Parallax Effect */}
       <div 
-        className="relative z-10 max-w-4xl mx-auto px-6 text-center space-y-8"
+        className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 text-center space-y-6 md:space-y-8"
         style={{ opacity }}
       >
-        <p className="text-2xl md:text-3xl font-bold leading-relaxed text-white">
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold leading-relaxed text-white">
           {renderTextWithBloodRed("...and this was the original name Richard Heart chose for ProveX...Why did he change it last minute?....")}
         </p>
       </div>

@@ -68,10 +68,10 @@ export default function MorbiusDescriptionSection() {
 
       {/* Centered Text with Fade In Parallax Effect */}
       <div 
-        className="relative z-10 max-w-4xl mx-auto px-6 text-center"
+        className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 text-center"
         style={{ opacity }}
       >
-        <p className="text-2xl md:text-3xl font-light text-white leading-relaxed">
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-white leading-relaxed">
           Morbius was a Marvel Character who was a scientist with a rare blood disease and would accidentally transform into a "living vampire" with superhuman strength, flight, and a craving for{" "}
           <span className="text-[#8B0000] font-semibold">
             blood
