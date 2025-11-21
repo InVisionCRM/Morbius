@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     });
 
     const response: { memes: Meme[] } = {
-      memes: memes.map((meme) => ({
+      memes: memes.map((meme: Meme) => ({
         ...meme,
         created_at: meme.created_at.toISOString(),
       })),
