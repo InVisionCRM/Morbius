@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  user_name String?  @db.VarChar(25)
+  created_at DateTime @default(now())
+  ip_hash   String?
+  deleted   Boolean  @default(false)
+  parent_id String?
+  parent    Message? @relation("MessageReplies", fields: [parent_id], references: [id])
+  replies   Message[] @relation("MessageReplies")
+  reactions Reaction[]
+  
+  @@index([created_at])
+  @@index([ip_hash])
+  @@index([deleted])
+  @@index([parent_id])
+}
+
+model RateLimitLog {
+  id        String   @id @default(cuid())
+  ip_hash   String
+  created_at DateTime @default(now())
+  
+  @@index([ip_hash, created_at])
+}
+
+enum ReactionType {
+  THUMBS_UP
+  HEART
+  LAUGH
+  THUMBS_DOWN
+  ANGRY
+}
+
+model Reaction {
+  id            String       @id @default(cuid())
+  message       Message      @relation(fields: [message_id], references: [id])
+  message_id    String
+  reaction_type ReactionType
+  count         Int          @default(0)
+
+  @@unique([message_id, reaction_type])
+}
+
+model Meme {
+  id           String   @id @default(cuid())
+  image_url    String   @db.Text
+  title        String?  @db.VarChar(120)
+  creator_name String?  @db.VarChar(60)
+  created_at   DateTime @default(now())
+}

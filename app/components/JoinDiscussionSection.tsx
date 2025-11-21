@@ -1,12 +1,67 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
+import { clamp } from "../utils/math";
+import { ScrollTypewriter } from "@/components/ui/typewriter-effect";
+
 export default function JoinDiscussionSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [progress, setProgress] = useState(0);
+  const words = useMemo(
+    () => ["Join", "the", "MorbNation", "and", "find", "out..."],
+    [],
+  );
+  const typewriterWords = useMemo(
+    () =>
+      words.map((word) => ({
+        text: word,
+        className: word === "out..." ? "text-[#c92d2d]" : undefined,
+      })),
+    [words]
+  );
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const viewHeight = window.innerHeight;
+      const total = rect.height - viewHeight;
+      const scroll =
+        total <= 0 ? (rect.top <= 0 ? 1 : 0) : clamp(-rect.top / total);
+      setProgress(scroll);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
+  const typingProgress = clamp(progress * 1.1);
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-black">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex items-center justify-center bg-black"
+    >
       <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 text-center space-y-6 md:space-y-8">
-        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold leading-relaxed text-white">
-          Join the discussion and find out...
-        </p>
+        <div
+          className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white"
+          style={{
+            transform: `translateY(${(1 - progress) * 60}px)`,
+            transition: "transform 0.3s ease",
+          }}
+        >
+          <ScrollTypewriter
+            words={typewriterWords}
+            progress={typingProgress}
+            className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white"
+            cursorClassName="bg-[#c92d2d]"
+          />
+        </div>
         
         <a
           href="https://t.me/morbius_cash"
@@ -23,4 +78,3 @@ export default function JoinDiscussionSection() {
     </section>
   );
 }
-
