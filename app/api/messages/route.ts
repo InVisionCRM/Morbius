@@ -33,7 +33,16 @@ type MessageRecord = {
   user_name: string | null;
   parent_id: string | null;
   reactions: ReactionRecord[];
-  replies: MessageRecord[];
+  replies: {
+    id: string;
+    content: string;
+    created_at: Date;
+    ip_hash: string | null;
+    deleted: boolean;
+    user_name: string | null;
+    parent_id: string | null;
+    reactions: ReactionRecord[];
+  }[];
 };
 
 const messageSelect = {
@@ -55,7 +64,7 @@ const messageSelect = {
       deleted: false,
     },
     orderBy: {
-      created_at: 'asc',
+      created_at: 'asc' as const,
     },
     select: {
       id: true,

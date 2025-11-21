@@ -26,7 +26,7 @@ const PROOF_ITEMS = [
   },
 ];
 
-function useSectionProgress(ref: React.RefObject<HTMLDivElement>) {
+function useSectionProgress(ref: React.RefObject<HTMLDivElement | null>) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
