@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { prisma } from '@/lib/prisma';
+import type { Meme as PrismaMeme } from '@prisma/client';
 import type { CreateMemeRequest, CreateMemeResponse, Meme } from '@/types/memes';
 
 const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     });
 
     const response: { memes: Meme[] } = {
-      memes: memes.map((meme: Meme) => ({
+      memes: memes.map((meme: PrismaMeme) => ({
         ...meme,
         created_at: meme.created_at.toISOString(),
       })),
