@@ -8,14 +8,14 @@ export default function JoinDiscussionSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [progress, setProgress] = useState(0);
   const words = useMemo(
-    () => ["Join", "the", "MorbNation", "and", "find", "out..."],
+    () => ["Join", "the", "MorbNation", "and", "find", "out", "why..."],
     [],
   );
   const typewriterWords = useMemo(
     () =>
       words.map((word) => ({
         text: word,
-        className: word === "out..." ? "text-[#c92d2d]" : undefined,
+        className: word === "why..." ? "text-[#c92d2d]" : undefined,
       })),
     [words]
   );

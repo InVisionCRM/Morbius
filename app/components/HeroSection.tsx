@@ -63,7 +63,7 @@ export default function HeroSection() {
 
         <div className="relative z-10 text-center px-4 md:px-6">
           <div
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[0.35em] text-gray-300 drop-shadow-[0_20px_50px_rgba(0,0,0,0.55)]"
+            className="bruno-ace-sc-regular text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.35em] text-gray-300 drop-shadow-[0_20px_50px_rgba(0,0,0,0.55)]"
             style={{
               opacity: textReveal,
               transform: `translateY(${(1 - textReveal) * 50}px)`,

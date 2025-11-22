@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat, Bruno_Ace_SC } from "next/font/google";
 import "./globals.css";
 // import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -20,6 +20,12 @@ const montserrat = Montserrat({
   weight: ["700", "800", "900"],
 });
 
+const brunoAceSC = Bruno_Ace_SC({
+  variable: "--font-bruno-ace-sc",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
 export const metadata: Metadata = {
   title: "Morbius.cash - Sacrifice Dashboard",
   description: "Track your points, sacrifices, and leaderboard rankings",
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased flex min-h-screen flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${brunoAceSC.variable} antialiased flex min-h-screen flex-col`}
       >
         {/* <Header /> */}
         {children}
